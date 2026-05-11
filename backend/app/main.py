@@ -8,6 +8,7 @@ import time
 from app.config import settings
 from app.database import connect_db, disconnect_db
 from app.routers import auth, users, learning, startups, government, jobs
+from app.routers import analytics, ai_assistant, uploads, payments, investors
 
 logging.basicConfig(
     level=logging.INFO,
@@ -68,6 +69,11 @@ app.include_router(learning.router, prefix=API_PREFIX)
 app.include_router(startups.router, prefix=API_PREFIX)
 app.include_router(government.router, prefix=API_PREFIX)
 app.include_router(jobs.router, prefix=API_PREFIX)
+app.include_router(analytics.router, prefix=API_PREFIX)
+app.include_router(ai_assistant.router, prefix=API_PREFIX)
+app.include_router(uploads.router, prefix=API_PREFIX)
+app.include_router(payments.router, prefix=API_PREFIX)
+app.include_router(investors.router, prefix=API_PREFIX)
 
 
 @app.get("/api/health")
