@@ -1,0 +1,53 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openedx-ingress
+  namespace: openedx
+  labels:
+    app.kubernetes.io/part-of: futurelib
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://futurelib.gov.lr"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - lms.futurelib.gov.lr
+        - studio.futurelib.gov.lr
+        - preview.lms.futurelib.gov.lr
+      secretName: openedx-tls
+  rules:
+    - host: lms.futurelib.gov.lr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: lms
+                port:
+                  number: 8000
+    - host: studio.futurelib.gov.lr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: cms
+                port:
+                  number: 8010
+    - host: preview.lms.futurelib.gov.lr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: lms
+                port:
+                  number: 8000

@@ -52,6 +52,21 @@ class Settings(BaseSettings):
     # Rate limiting
     RATE_LIMIT_PER_MINUTE: int = 60
 
+    # Open edX Integration
+    OPENEDX_LMS_URL: str = "http://lms.local.edly.io"
+    OPENEDX_CMS_URL: str = "http://studio.local.edly.io"
+    OPENEDX_DISCOVERY_URL: str = "http://discovery.local.edly.io"
+    OPENEDX_CLIENT_ID: str = ""
+    OPENEDX_CLIENT_SECRET: str = ""
+    # Scopes for server-to-server OAuth2 token
+    OPENEDX_OAUTH_SCOPES: str = "user_id profile email"
+    # Platform name shown in Open edX emails / UI
+    OPENEDX_PLATFORM_NAME: str = "FutureLib"
+    # When True, auto-provision FutureLib users on Open edX at first course access
+    OPENEDX_AUTO_PROVISION: bool = True
+    # LTI shared secret (optional LTI tool integration)
+    OPENEDX_LTI_SECRET: str = ""
+
     class Config:
         env_file = ".env"
         case_sensitive = True
