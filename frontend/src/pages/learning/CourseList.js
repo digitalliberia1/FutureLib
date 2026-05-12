@@ -17,6 +17,7 @@ export default function CourseList() {
   const [courses, setCourses] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [lmsOffline, setLmsOffline] = useState(false);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -24,12 +25,17 @@ export default function CourseList() {
 
   const fetchCourses = useCallback(async () => {
     setLoading(true);
+    setLmsOffline(false);
     try {
       const data = await listCourses({ page, pageSize: PAGE_SIZE, search: search || undefined });
       const results = (data.results || data.courses || []).map(normaliseCourse);
       setCourses(results);
       setTotal(data.count || data.total || results.length);
-    } catch {
+    } catch (err) {
+      const status = err?.response?.status;
+      if (status === 503 || !status) {
+        setLmsOffline(true);
+      }
       setCourses([]);
     } finally {
       setLoading(false);
@@ -53,6 +59,19 @@ export default function CourseList() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Navbar />
+
+      {/* LMS offline banner */}
+      {lmsOffline && (
+        <div style={{ background: '#fef3c7', borderBottom: '1px solid #fde68a', padding: '0.75rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span style={{ fontSize: '1.1rem' }}>⚠️</span>
+          <div>
+            <strong style={{ color: '#92400e' }}>Open edX LMS is not reachable.</strong>
+            <span style={{ color: '#b45309', marginLeft: '0.5rem', fontSize: '0.875rem' }}>
+              Start Tutor locally (<code style={{ background: 'rgba(0,0,0,0.08)', padding: '0 4px', borderRadius: '3px' }}>tutor local start</code>) or set <code style={{ background: 'rgba(0,0,0,0.08)', padding: '0 4px', borderRadius: '3px' }}>OPENEDX_LMS_URL</code> to your running instance.
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Hero */}
       <div style={{ background: 'linear-gradient(135deg, var(--blue-900) 0%, var(--blue-800) 100%)', color: '#fff', padding: '3.5rem 1.25rem 2.5rem' }}>
