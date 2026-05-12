@@ -1,0 +1,62 @@
+# Open edX local development stack (via Tutor Docker)
+#
+# PURPOSE: Run Open edX alongside FutureLib for local development.
+#
+# USAGE:
+#   1. Install Tutor first (this compose file references Tutor-managed images):
+#        pip install "tutor[full]"
+#        tutor config save \
+#          --set LMS_HOST=local.edly.io \
+#          --set CMS_HOST=studio.local.edly.io
+#        tutor local launch      # First-time setup (5–10 min)
+#
+#   2. Then start FutureLib alongside Open edX:
+#        docker compose -f docker-compose.yml \
+#                       -f docker-compose.openedx.yml up -d
+#
+#   3. Set backend env to point at Open edX:
+#        OPENEDX_LMS_URL=http://local.edly.io
+#        OPENEDX_CMS_URL=http://studio.local.edly.io
+#        OPENEDX_CLIENT_ID=futurelib-client
+#        OPENEDX_CLIENT_SECRET=<from Tutor>
+#
+# NOTE: Tutor manages its own MySQL, MongoDB, Redis, and Elasticsearch.
+#       This file only defines a network bridge so FutureLib services can
+#       reach the Tutor-managed Open edX containers.
+
+version: "3.9"
+
+networks:
+  # Connect to Tutor's default network (named "tutor_default" by Tutor)
+  tutor_default:
+    external: true
+    name: tutor_default
+  # FutureLib internal network (defined in docker-compose.yml)
+  futurelib-net:
+    external: true
+
+services:
+  # ── FutureLib backend with Open edX network access ──────────────────────────
+  backend:
+    networks:
+      - futurelib-net
+      - tutor_default   # Allows direct HTTP calls to Open edX LMS/CMS
+    environment:
+      - OPENEDX_LMS_URL=http://lms:8000
+      - OPENEDX_CMS_URL=http://cms:8010
+      - OPENEDX_CLIENT_ID=${OPENEDX_CLIENT_ID:-futurelib-client}
+      - OPENEDX_CLIENT_SECRET=${OPENEDX_CLIENT_SECRET:-change-me}
+      - OPENEDX_PLATFORM_NAME=FutureLib
+      - OPENEDX_AUTO_PROVISION=true
+
+  # ── Open edX Caddy reverse proxy (Tutor's SSL termination) ──────────────────
+  # Exposed on port 80/443 by Tutor; we add it here only as a documentation
+  # reference — Tutor starts it automatically via `tutor local start`.
+  #
+  # caddy:
+  #   image: docker.io/overhangio/caddy:1.0.0
+  #   networks:
+  #     - tutor_default
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"

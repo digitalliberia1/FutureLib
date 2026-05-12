@@ -11,6 +11,7 @@ from app.routers import auth, users, learning, startups, government, jobs
 from app.routers import analytics, ai_assistant, uploads, payments, investors
 from app.routers import notifications, search, admin, certificates, forum
 from app.routers import cybersecurity, infrastructure, smart_city, digital_economy, ai_governance
+from app.routers import openedx_learning
 
 logging.basicConfig(
     level=logging.INFO,
@@ -86,6 +87,7 @@ app.include_router(infrastructure.router, prefix=API_PREFIX)
 app.include_router(smart_city.router, prefix=API_PREFIX)
 app.include_router(digital_economy.router, prefix=API_PREFIX)
 app.include_router(ai_governance.router, prefix=API_PREFIX)
+app.include_router(openedx_learning.router, prefix=API_PREFIX)
 
 
 @app.get("/api/health")

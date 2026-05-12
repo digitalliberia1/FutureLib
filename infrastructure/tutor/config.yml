@@ -1,0 +1,71 @@
+# Tutor Open edX Configuration for FutureLib
+# https://docs.tutor.edly.io/configuration.html
+#
+# Usage:
+#   1. Install Tutor:  pip install "tutor[full]"
+#   2. Copy this file: cp infrastructure/tutor/config.yml $(tutor config printroot)/config.yml
+#   3. Set secrets:    tutor config save --set OPENEDX_SECRET_KEY=$(openssl rand -hex 32)
+#   4. Launch:         tutor local launch
+#
+# Production (Kubernetes):
+#   tutor k8s launch
+
+# ─── Platform identity ───────────────────────────────────────────────────────
+PLATFORM_NAME: "FutureLib"
+LMS_HOST: "lms.futurelib.gov.lr"
+CMS_HOST: "studio.futurelib.gov.lr"
+PREVIEW_LMS_HOST: "preview.lms.futurelib.gov.lr"
+
+# ─── Language & locale ───────────────────────────────────────────────────────
+LANGUAGE_CODE: "en"
+TIME_ZONE: "Africa/Monrovia"
+
+# ─── Email ───────────────────────────────────────────────────────────────────
+CONTACT_EMAIL: "support@futurelib.gov.lr"
+DEFAULT_FROM_EMAIL: "noreply@futurelib.gov.lr"
+
+# ─── Security ────────────────────────────────────────────────────────────────
+# Set via: tutor config save --set OPENEDX_SECRET_KEY=$(openssl rand -hex 32)
+OPENEDX_SECRET_KEY: "CHANGE_THIS"
+
+# ─── Theming ─────────────────────────────────────────────────────────────────
+# We use a minimal theme — the real frontend is FutureLib's custom React app.
+# Open edX Studio (CMS) and admin panel retain the default theme.
+ENABLE_THEMING: false
+
+# ─── OAuth2 / SSO — FutureLib as trusted OAuth2 client ───────────────────────
+# After launch, create the FutureLib OAuth2 application:
+#   tutor local do createclient \
+#     --client-id futurelib-client \
+#     --client-secret CHANGE_THIS_SECRET \
+#     --trusted \
+#     --redirect-uri https://futurelib.gov.lr/auth/openedx/callback \
+#     --grant-type client-credentials \
+#     --grant-type password
+#
+# This gives FutureLib backend server-to-server access (client_credentials)
+# and user-level access (password grant for SSO token exchange).
+
+# ─── Features ────────────────────────────────────────────────────────────────
+ENABLE_CERTIFICATES: true
+ENABLE_COURSE_DISCOVERY: true
+ENABLE_DISCUSSION_SERVICE: true
+ENABLE_PROCTORED_EXAMS: false
+
+# ─── CORS — allow FutureLib frontend & backend ───────────────────────────────
+CORS_ORIGIN_WHITELIST:
+  - "https://futurelib.gov.lr"
+  - "http://localhost:3000"
+  - "http://localhost:8000"
+
+# ─── Storage ─────────────────────────────────────────────────────────────────
+# For production, use S3-compatible storage (MinIO or AWS S3)
+# Uncomment and fill:
+# OPENEDX_AWS_ACCESS_KEY: ""
+# OPENEDX_AWS_SECRET_ACCESS_KEY: ""
+# OPENEDX_AWS_STORAGE_BUCKET_NAME: "futurelib-openedx-assets"
+# OPENEDX_AWS_S3_REGION_NAME: "us-east-1"
+
+# ─── Tutor plugins (install before launch) ───────────────────────────────────
+# pip install tutor-mfe tutor-indigo tutor-discovery tutor-credentials
+# tutor plugins enable mfe indigo discovery credentials
